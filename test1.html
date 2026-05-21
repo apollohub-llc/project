@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apollo Data Transmitter</title>
+    <style>
+        body {
+            background: #0f0f11;
+            color: #e0e0e6;
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .panel {
+            background: #151518;
+            border: 1px solid #ff6600;
+            padding: 30px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 0 15px rgba(255, 102, 0, 0.2);
+            max-width: 400px;
+        }
+        h1 { color: #ff6600; margin-bottom: 10px; font-size: 1.5rem; }
+        .status { color: #ffa500; font-weight: bold; margin: 15px 0; }
+        .info { font-family: monospace; font-size: 0.9rem; background: #0b0b0d; padding: 10px; border-radius: 4px; word-break: break-all; }
+    </style>
+</head>
+<body>
+
+    <div class="panel">
+        <h1>Apollo Transmitter</h1>
+        <p>Sending handshake payload to server...</p>
+        <div id="status" class="status">Status: Initializing Agent...</div>
+        <div id="output" class="info">Awaiting response stream...</div>
+    </div>
+
+    <script>
+        // 1. Initialize the Fingerprint CDN integration agent
+        const fpPromise = import('https://fpjscdn.net/v4/ysCiFim2vxHqPn0i4QqZ')
+            .then(Fingerprint => Fingerprint.start());
+
+        // 2. Trigger data transmission sequence
+        fpPromise
+            .then(fp => fp.get())
+            .then(result => {
+                // Update UI status to confirm transmission succeeded
+                document.getElementById('status').style.color = '#00e673';
+                document.getElementById('status').textContent = 'Transmission Complete!';
+                
+                // Print the accurate Event ID needed for your dashboard lookup
+                document.getElementById('output').innerHTML = `
+                    <strong>Visitor ID:</strong><br>${result.visitorId}<br><br>
+                    <strong>Event ID:</strong><br>${result.requestId}
+                `;
+                
+                console.log("Payload sent successfully. Event ID:", result.requestId);
+            })
+            .catch(error => {
+                document.getElementById('status').style.color = '#ff3333';
+                document.getElementById('status').textContent = 'Transmission Failed';
+                document.getElementById('output').textContent = `Error: ${error.message}. Check if your adblocker is active.`;
+            });
+    </script>
+</body>
+</html>
