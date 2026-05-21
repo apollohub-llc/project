@@ -1,45 +1,194 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redirecting...</title>
+    <title>MyChat AI</title>
     <style>
-        body { background: #0b0b0c; color: #fff; font-family: sans-serif; text-align: center; padding-top: 100px; }
-        .spinner { border: 4px solid rgba(255,102,0,0.1); border-left-color: #ff6600; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 20px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        a { color: #ff6600; text-decoration: none; font-weight: bold; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            color: #e6e6e6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(90deg, #0f172a, #1e293b);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #334155;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.15);
+        }
+
+        .logo {
+            font-size: 1.3rem;
+            font-weight: 600;
+            background: linear-gradient(90deg, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Main Chat Area */
+        .chat-container {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .message {
+            margin-bottom: 1.5rem;
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            max-width: 80%;
+            line-height: 1.5;
+        }
+
+        .user-msg {
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            margin-left: auto;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+        }
+
+        .bot-msg {
+            background: linear-gradient(135deg, #334155, #475569);
+            margin-right: auto;
+            box-shadow: 0 0 10px rgba(71, 85, 105, 0.3);
+        }
+
+        /* Input Area */
+        .input-area {
+            background: linear-gradient(90deg, #0f172a, #1e293b);
+            padding: 1.5rem 2rem;
+            border-top: 1px solid #334155;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: sticky;
+            bottom: 0;
+            box-shadow: 0 -2px 12px rgba(99, 102, 241, 0.15);
+        }
+
+        #chat-input {
+            flex: 1;
+            background-color: #1e293b;
+            border: 1px solid #475569;
+            border-radius: 24px;
+            padding: 0.8rem 1.25rem;
+            color: #f1f5f9;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        #chat-input:focus {
+            border-color: #38bdf8;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, #0ea5e9, #6366f1);
+            border: none;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 24px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 8px rgba(14, 165, 233, 0.3);
+        }
+
+        .send-btn:hover {
+            opacity: 0.9;
+            box-shadow: 0 0 16px rgba(14, 165, 233, 0.6), 0 0 24px rgba(99, 102, 241, 0.4);
+            transform: translateY(-1px);
+        }
+
+        /* Useless Microphone Button — still useless 😂 */
+        .mic-btn {
+            background: linear-gradient(135deg, #475569, #64748b);
+            border: none;
+            color: #cbd5e1;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: default;
+            opacity: 0.75;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 6px rgba(100, 116, 139, 0.3);
+        }
+
+        .mic-btn:hover {
+            background: linear-gradient(135deg, #64748b, #94a3b8);
+            box-shadow: 0 0 12px rgba(148, 163, 184, 0.6), 0 0 20px rgba(100, 116, 139, 0.4);
+            opacity: 0.9;
+        }
     </style>
 </head>
 <body>
+    <header>
+        <div class="logo">MyChat AI</div>
+        <span style="font-size: 0.9rem; color: #94a3b8;">Not Official ChatGPT</span>
+    </header>
 
-    <div class="spinner"></div>
-    <p>Opening in Chrome, please wait...</p>
-    <p style="font-size: 12px; color: #555;">If it doesn't open automatically, <a id="manual-link" href="https://urlto.me/29X65">click here</a>.</p>
+    <div class="chat-container" id="chat-container">
+        <!-- NO PAST MESSAGES - EMPTY BY DEFAULT -->
+    </div>
+
+    <div class="input-area">
+        <button class="mic-btn">🎤</button>
+        <input type="text" id="chat-input" placeholder="Type your message here...">
+        <button class="send-btn" id="send-btn">Send</button>
+    </div>
 
     <script>
-        (function() {
-            // Your target Grabify URL
-            const targetUrl = "https://urlto.me/29X65";
-            
-            // This is the special Android string that tells the phone: "Open this URL inside Chrome specifically"
-            const androidIntent = "intent://urlto.me/29X65#Intent;scheme=https;package=com.android.chrome;end";
-            
-            const ua = navigator.userAgent || navigator.vendor || window.opera;
-            const isAndroid = /Android/i.test(ua);
+        const chatContainer = document.getElementById('chat-container');
+        const chatInput = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('send-btn');
 
-            // Update the backup manual link just in case
-            document.getElementById('manual-link').href = isAndroid ? androidIntent : targetUrl;
+        // Function to add message to chat
+        function addMessage(text, isUser = false) {
+            const msgDiv = document.createElement('div');
+            msgDiv.classList.add('message');
+            msgDiv.classList.add(isUser ? 'user-msg' : 'bot-msg');
+            msgDiv.textContent = text;
+            chatContainer.appendChild(msgDiv);
+            // Auto scroll to bottom
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
 
-            // Attempt the automatic breakout execution immediately
-            if (isAndroid) {
-                window.location.href = androidIntent;
-            } else {
-                // iOS (Safari/Chrome) doesn't support intents, so it falls back to the direct link
-                window.location.href = targetUrl;
+        // Send message when button clicked
+        sendBtn.addEventListener('click', () => {
+            const message = chatInput.value.trim();
+            if (message) {
+                addMessage(message, true);
+                chatInput.value = '';
+                // Simple bot reply
+                setTimeout(() => {
+                    addMessage("Got it! I received your message 😎");
+                }, 600);
             }
-        })();
-    </script>
+        });
 
+        // Send on Enter key
+        chatInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') sendBtn.click();
+        });
+    </script>
 </body>
 </html>
