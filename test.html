@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apollo Device Identifier</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f0f11 0%, #1a1a1f 100%);
+            color: #e0e0e6;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: #151518;
+            border: 1px solid #ff6600;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(255, 102, 0, 0.2);
+            width: 100%;
+            max-width: 700px;
+            padding: 30px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #2d2d35;
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            color: #ff6600;
+            font-size: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(255, 102, 0, 0.3);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #a0a0aa;
+            font-size: 0.9rem;
+        }
+
+        .status-panel {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #1c1c21;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 4px solid #ff6600;
+        }
+
+        .status-title {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .status-loading {
+            background-color: rgba(255, 165, 0, 0.1);
+            color: #ffa500;
+            border: 1px solid #ffa500;
+        }
+
+        .status-success {
+            background-color: rgba(0, 230, 115, 0.1);
+            color: #00e673;
+            border: 1px solid #00e673;
+        }
+
+        .status-error {
+            background-color: rgba(255, 51, 51, 0.1);
+            color: #ff3333;
+            border: 1px solid #ff3333;
+        }
+
+        .data-field {
+            margin-bottom: 20px;
+        }
+
+        .data-label {
+            color: #ff6600;
+            font-size: 0.85rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: block;
+            letter-spacing: 1px;
+        }
+
+        .data-value {
+            background-color: #1c1c21;
+            padding: 12px 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1rem;
+            color: #ffffff;
+            word-break: break-all;
+            border: 1px solid #2d2d35;
+        }
+
+        .json-container {
+            margin-top: 25px;
+        }
+
+        pre {
+            background-color: #0b0b0d;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85rem;
+            color: #00e673;
+            border: 1px solid #2d2d35;
+            max-height: 250px;
+        }
+
+        .ad-warning {
+            background-color: rgba(255, 51, 51, 0.05);
+            border: 1px dashed #ff3333;
+            color: #ff9999;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Apollo Visitor ID</h1>
+            <p class="subtitle">Fingerprint Browser Environment & Identification Tool</p>
+        </header>
+
+        <div class="status-panel">
+            <span class="status-title">Initialization Status</span>
+            <span id="status" class="status-badge status-loading">Loading...</span>
+        </div>
+
+        <div class="data-field">
+            <span class="data-label">Visitor ID</span>
+            <div id="visitor-id" class="data-value">Fetching tracking token...</div>
+        </div>
+
+        <div class="data-field">
+            <span class="data-label">Event ID</span>
+            <div id="event-id" class="data-value">Generating execution context...</div>
+        </div>
+
+        <div class="json-container">
+            <span class="data-label">Raw Response Payload</span>
+            <pre id="raw-payload">// Waiting for payload sequence...</pre>
+        </div>
+
+        <div class="ad-warning">
+            <strong>Notice:</strong> If the fields fail to load, ensure your ad blocker is disabled for local testing.
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const statusEl = document.getElementById('status');
+            const visitorIdEl = document.getElementById('visitor-id');
+            const eventIdEl = document.getElementById('event-id');
+            const payloadEl = document.getElementById('raw-payload');
+
+            // Initialize the agent at application startup.
+            const fpPromise = import('https://fpjscdn.net/v4/ysCiFim2vxHqPn0i4QqZ')
+                .then(Fingerprint => Fingerprint.start())
+
+            // Get the visitor and event identifier.
+            fpPromise
+                .then(fp => fp.get())
+                .then(result => {
+                    // Update UI elements with the gathered data
+                    statusEl.textContent = "Success";
+                    statusEl.className = "status-badge status-success";
+                    
+                    visitorIdEl.textContent = result.visitorId || result.visitor_id;
+                    eventIdEl.textContent = result.requestId || result.event_id || 'N/A';
+                    
+                    // Format and display the entire result object
+                    payloadEl.textContent = JSON.stringify(result, null, 2);
+                    
+                    // Log to console as well per configuration guide
+                    console.log("Fingerprint Loaded Successfully:", result);
+                })
+                .catch(error => {
+                    // Handle integration or network errors gracefully
+                    statusEl.textContent = "Failed";
+                    statusEl.className = "status-badge status-error";
+                    
+                    visitorIdEl.textContent = "Error acquiring token.";
+                    eventIdEl.textContent = "Execution interrupted.";
+                    payloadEl.textContent = `Error details: ${error.message}`;
+                    
+                    console.error("Fingerprint Error:", error);
+                });
+        });
+    </script>
+</body>
+</html>
